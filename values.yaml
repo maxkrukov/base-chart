@@ -34,15 +34,15 @@ terminationGracePeriodSeconds: 30
 #    path: /shutdown
 #    port: 4000
 
-livenessProbe:
-  httpGet:
-    path: /health
-    port: http
+livenessProbe: {}
+#  httpGet:
+#    path: /health
+#    port: http
 
-readinessProbe:
-  httpGet:
-    path: /health
-    port: http
+readinessProbe: {}
+#  httpGet:
+#    path: /health
+#    port: http
 
 
 serviceAccount:
