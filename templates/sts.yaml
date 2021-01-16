@@ -1,6 +1,26 @@
-{{- if eq .Values.statefulset.enabled false }}
+{{- if .Values.statefulset.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base-chart.fullname" . }}-headless
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  ports:
+{{- range .Values.service.services }}
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      protocol: {{ .protocol }}
+      name: {{ .name }}
+{{- end }}
+  selector:
+    {{- include "base-chart.selectorLabels" . | nindent 4 }}
+
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "base-chart.fullname" . }}
   labels:
@@ -9,6 +29,8 @@ spec:
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
 {{- end }}
+  podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
+  serviceName: {{ include "base-chart.fullname" . }}-headless
   selector:
     matchLabels:
       {{- include "base-chart.selectorLabels" . | nindent 6 }}
@@ -40,6 +62,11 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            {{- if not (empty .Values.environment) }}
+            {{- with .Values.environment }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}                          
+            {{- end }}
                 {{- if .Values.JAVA_OPTS }}
             - name: JAVA_OPTS
               value: {{ join " " .Values.JAVA_OPTS | quote }}
@@ -86,6 +113,13 @@ spec:
             {{- if .Values.fileLoad.enabled }}
             - mountPath: {{ .Values.fileLoad.mountPath }}
               name: files-config
+            {{- end }}
+            
+            {{- if .Values.statefulset.volumeClaimTemplates.enabled }}
+            {{- range .Values.statefulset.volumeClaimTemplates.templates }}
+            - mountPath: {{ .mountPath }}
+              name: {{ .name }}
+            {{- end }}
             {{- end }}
 
           ports:
@@ -134,4 +168,28 @@ spec:
           configMap:
             name: {{ include "base-chart.fullname" . }}-config      
       {{- end }}
+  {{- if .Values.statefulset.volumeClaimTemplates.enabled }}
+  volumeClaimTemplates:
+  {{ range .Values.statefulset.volumeClaimTemplates.templates }}
+  - metadata:
+      name: {{ .name }}
+    spec:
+      accessModes: 
+      {{- range .accessModes }}
+      - {{ . }}
+      {{- end }}
+      {{- if .storageClassName }}
+      storageClassName: {{ .storageClassName  }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .storage }}
+  {{- end }}
+  {{- end }}
+
+  {{- with .Values.statefulset.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
 {{- end }}

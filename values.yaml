@@ -4,11 +4,33 @@
 
 replicaCount: 1
 
+statefulset:
+  enabled: true
+  # podManagementPolicy could be:
+  # Parallel or OrderedReady
+  podManagementPolicy: Parallel
+  updateStrategy:
+    # The spec.updateStrategy.type field accepts either 
+    # OnDelete or RollingUpdate as values
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+    enabled: false
+    templates:
+      - name: data-vct
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: ""
+        storage: 1Gi
+        mountPath: /mnt/www
+
 image:
-  repository: image
+  repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "tag"
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -23,8 +45,14 @@ JMX_OPTS: []
 #   - "-DParam2"
 
 env: {}
-#  MYSQL_HOST: "mysql:3306"
-#  KAFKA_HOST: "kafka:9092"
+ # MYSQL_HOST: "mysql:3306"
+ # KAFKA_HOST: "kafka:9092"
+
+environment:
+  - name: MY_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
 
 terminationGracePeriodSeconds: 30
 
@@ -34,15 +62,15 @@ terminationGracePeriodSeconds: 30
 #    path: /shutdown
 #    port: 4000
 
-livenessProbe: {}
-#  httpGet:
-#    path: /health
-#    port: http
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
 
-readinessProbe: {}
-#  httpGet:
-#    path: /health
-#    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
 
 
 serviceAccount:
@@ -71,15 +99,15 @@ service:
   type: ClusterIP
   services:
   - name: http
-    targetPort: 8080
-    port: 8080
+    targetPort: 80
+    port: 80
     protocol: TCP
     # nodePort: 30080
-  - name: jmx
-    targetPort: 19016
-    port: 19016
-    protocol: TCP
-    # nodePort: 30016
+  #- name: jmx
+  #  targetPort: 19016
+  #  port: 19016
+  #  protocol: TCP
+  #  # nodePort: 30016
   
 ingress:
   enabled: false
@@ -115,8 +143,8 @@ initContainers: []
 sidecars: []
 
 autoscaling:
-  enabled: false
-  minReplicas: 1
+  enabled: true
+  minReplicas: 10
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
