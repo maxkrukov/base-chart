@@ -15,7 +15,6 @@ statefulset:
     type: RollingUpdate
     rollingUpdate:
       partition: 0
-    type: RollingUpdate
   volumeClaimTemplates:
     enabled: false
     templates:
