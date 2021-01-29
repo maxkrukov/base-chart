@@ -5,7 +5,7 @@
 replicaCount: 1
 
 statefulset:
-  enabled: true
+  enabled: false
   # podManagementPolicy could be:
   # Parallel or OrderedReady
   podManagementPolicy: Parallel
@@ -47,11 +47,11 @@ env: {}
  # MYSQL_HOST: "mysql:3306"
  # KAFKA_HOST: "kafka:9092"
 
-environment:
-  - name: MY_NODE_NAME
-    valueFrom:
-      fieldRef:
-        fieldPath: spec.nodeName
+environment: []
+#  - name: MY_NODE_NAME
+#    valueFrom:
+#      fieldRef:
+#        fieldPath: spec.nodeName
 
 terminationGracePeriodSeconds: 30
 
@@ -198,10 +198,6 @@ volumeMounts: []
 #  - mountPath: /etc/timezone
 #    name: <volumeName>
 #    subPath: ..data/timezone
-
-fileLoad:
-  enabled: false
-  mountPath: /app/config
 
 #files:
 #  - mountPath: /etc/timezone

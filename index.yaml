@@ -3,12 +3,12 @@ entries:
   base-chart:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2021-01-20T15:02:56.124700803+02:00"
+    created: "2021-01-29T15:41:55.461361634+02:00"
     description: A Helm chart for Kubernetes
     digest: dbd439715444667fe6526d225bd9fc954d299922729b2bcf78d128d82eb81c88
     name: base-chart
     type: application
     urls:
-    - https://raw.githubusercontent.com/maxkrukov/base-chart/main/base-chart-0.1.0.tgz
+    - base-chart-0.1.0.tgz
     version: 0.1.0
-generated: "2021-01-20T15:02:56.123786502+02:00"
+generated: "2021-01-29T15:41:55.460465875+02:00"
