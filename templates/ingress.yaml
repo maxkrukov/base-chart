@@ -28,13 +28,58 @@ spec:
   rules:
     {{- range .Values.ingress.hosts }}
     {{- $servicePort := .servicePort }}
+    {{- $serviceName := .serviceName }}
     - host: {{ .host | quote }}
       http:
         paths:
           {{- range .paths }}
           - path: {{ . }}
             backend:
-              serviceName: {{ $fullName }}
+              serviceName: {{ $serviceName | default $fullName }}
+              servicePort: {{ $servicePort }}
+          {{- end }}
+    {{- end }}
+  {{- end }}
+
+---
+{{- if .Values.ingressExternal.enabled -}}
+{{- $fullName := include "base-chart.fullname" . -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-external
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+  {{- with .Values.ingressExternal.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingressExternal.tls }}
+  tls:
+    {{- range .Values.ingressExternal.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingressExternal.hosts }}
+    {{- $servicePort := .servicePort }}
+    {{- $serviceName := .serviceName }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName | default $fullName }}
               servicePort: {{ $servicePort }}
           {{- end }}
     {{- end }}
