@@ -1,0 +1,23 @@
+{{- if or .Values.files .Values.binaryFiles }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+data:
+{{- range .Values.files }}
+{{- range $key, $value := .data }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}
+{{- end }}
+binaryData:
+{{- range .Values.binaryFiles }}
+{{- range $key, $value := .data }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+

@@ -1,0 +1,225 @@
+# Default values for base-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+recreatePods: false
+
+statefulset:
+  enabled: false
+  # podManagementPolicy could be:
+  # Parallel or OrderedReady
+  podManagementPolicy: Parallel
+  updateStrategy:
+    # The spec.updateStrategy.type field accepts either 
+    # OnDelete or RollingUpdate as values
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  volumeClaimTemplates:
+    enabled: false
+    templates:
+      - name: data-vct
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: ""
+        storage: 1Gi
+        mountPath: /mnt/www
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+JAVA_OPTS: []
+#   - "-Param1"
+#   - "-Param2"
+
+JMX_OPTS: []
+#   - "-DParam1"
+#   - "-DParam2"
+
+env: {}
+ # MYSQL_HOST: "mysql:3306"
+ # KAFKA_HOST: "kafka:9092"
+
+environment: []
+#  - name: MY_NODE_NAME
+#    valueFrom:
+#      fieldRef:
+#        fieldPath: spec.nodeName
+
+terminationGracePeriodSeconds: 30
+
+#lifecycle:
+#  preStop:
+#    httpGet:
+#    path: /shutdown
+#    port: 4000
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  services:
+  - name: http
+    targetPort: 80
+    port: 80
+    protocol: TCP
+    # nodePort: 30080
+  #- name: jmx
+  #  targetPort: 19016
+  #  port: 19016
+  #  protocol: TCP
+  #  # nodePort: 30016
+  
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example01.local
+      paths: 
+      - path: "/"
+        pathType: ImplementationSpecific
+      #serviceName:
+      servicePort: "9080"
+    - host: chart-example02.local
+      paths:
+      - path: "/"
+        pathType: ImplementationSpecific
+      #serviceName:
+      servicePort: "8080"
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+initContainers:
+sidecars: []
+
+autoscaling:
+  enabled: false
+  minReplicas: 10
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+volumeMounts: []
+#  - mountPath: /etc/timezone
+#    name: <volumeName>
+#    subPath: ..data/timezone
+
+fileLoad:
+  enabled: false
+  mountPath: /app/config
+
+servicemonitor:
+  enabled: false
+#  prometheus:
+#    namespace: monitoring
+#    labels:
+#      release: kube-prometheus-stack
+#      app: kube-prometheus-stack
+#  port: app
+#  path: actuator/prometheus
+#  interval: 10s
+
+prometheusrule:
+  enabled: false
+#  prometheus:
+#    namespace: monitoring
+#    labels:
+#      release: kube-prometheus-stack
+#      app: kube-prometheus-stack
+#  groups:
+#    - name: base-chart
+#      rules:
+#        - alert: test-base-chart
+#          annotations:
+#            description: Test  
+#            summary: Test for testing alert                                       
+#          expr: vector(0) == 0
+#          for: 1m
+#          labels:
+#            severity: warning
+
+
+volumeMounts: []
+#  - mountPath: /etc/timezone
+#    name: <volumeName>
+#    subPath: ..data/timezone
+
+#files:
+#  - mountPath: /etc/timezone
+#    data:
+#      timezone: |-
+#        Europe/Kiev
+
+#binaryFiles:
+#  - mountPath: /etc/localtime
+#    data:
+#      localtime: |-
+#        VFppZjIAAAAAAAAAAAAAAAAAAAAAAAANAAAADQAAAAAAAAB5AAAADQAAACKAAAAAqhmnZLWkGWDK
+#        zS7QzOdLEM2pF5DOokMQzs2ocBUnp9AWGNxAFwjbUBf6D8AY6g7QGdtDQBrMk9AbvKDwHKyR8B2c
+#        ..............
+

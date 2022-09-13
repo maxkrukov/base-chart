@@ -1,0 +1,10 @@
+{{- if .Values.fileLoad.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "base-chart.fullname" . }}-config
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+data:
+{{ (.Files.Glob "config/*").AsConfig | indent 2 }}
+{{- end }}

@@ -1,0 +1,198 @@
+{{- if .Values.statefulset.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base-chart.fullname" . }}-headless
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  ports:
+{{- range .Values.service.services }}
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      protocol: {{ .protocol }}
+      name: {{ .name }}
+{{- end }}
+  selector:
+    {{- include "base-chart.selectorLabels" . | nindent 4 }}
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
+  serviceName: {{ include "base-chart.fullname" . }}-headless
+  selector:
+    matchLabels:
+      {{- include "base-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+    {{- if .Values.recreatePods }}
+        rollme: {{ randAlphaNum 5 | quote }}
+    {{- end }}
+    {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "base-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | default 30 }}
+      {{- if .Values.initContainers }}
+      initContainers:
+      {{- tpl .Values.initContainers . | nindent 8 }}
+      {{- end  }}      
+      serviceAccountName: {{ include "base-chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- if not (empty .Values.environment) }}
+            {{- with .Values.environment }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}                          
+            {{- end }}
+                {{- if .Values.JAVA_OPTS }}
+            - name: JAVA_OPTS
+              value: {{ join " " .Values.JAVA_OPTS | quote }}
+                {{- end }}
+                {{- if .Values.JMX_OPTS }}
+            - name: JMX_OPTS
+              value: {{ join " " .Values.JMX_OPTS | quote }}
+                {{- end }}
+                {{- range $name, $value := .Values.env }}
+                {{- if not (empty $value) }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+                {{- end }}
+                {{- end }}
+          volumeMounts:
+            {{- with .Values.volumeMounts }}
+            {{- range . }}
+            - mountPath: {{ .mountPath }}
+              name: {{ .name }}
+              {{ if .subPath }}subPath: {{ .subPath }}{{ end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if .Values.files }}
+            {{- range .Values.files }}
+            - mountPath: {{ .mountPath }}
+              name: files
+              {{- range $name, $value := .data }}
+              subPath: ..data/{{ $name }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if .Values.binaryFiles }}
+            {{- range .Values.binaryFiles }}
+            - mountPath: {{ .mountPath }}
+              name: files
+              {{- range $name, $value := .data }}
+              subPath: ..data/{{ $name }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+                  
+            {{- if .Values.fileLoad.enabled }}
+            - mountPath: {{ .Values.fileLoad.mountPath }}
+              name: files-config
+            {{- end }}
+            
+            {{- if .Values.statefulset.volumeClaimTemplates.enabled }}
+            {{- range .Values.statefulset.volumeClaimTemplates.templates }}
+            - mountPath: {{ .mountPath }}
+              name: {{ .name }}
+            {{- end }}
+            {{- end }}
+
+          ports:
+            {{- range .Values.service.services }}
+            - name: {{ .name }}
+              containerPort: {{ .targetPort }}
+              protocol: {{ .protocol }}
+            {{- end }}
+            {{- if .Values.lifecycle }}
+          lifecycle:
+            {{- toYaml .Values.lifecycle | nindent 12 }}
+            {{- end }}
+            {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- end }}
+            {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.sidecars  }}
+      {{- toYaml .Values.sidecars | nindent 8 }}
+      {{- end }}   
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if or .Values.files .Values.binaryFiles }}
+        - name: files
+          configMap:
+            name: {{ include "base-chart.fullname" . }}
+      {{- end }}
+      {{- if .Values.fileLoad.enabled }}
+        - name: files-config
+          configMap:
+            name: {{ include "base-chart.fullname" . }}-config      
+      {{- end }}
+  {{- if .Values.statefulset.volumeClaimTemplates.enabled }}
+  volumeClaimTemplates:
+  {{ range .Values.statefulset.volumeClaimTemplates.templates }}
+  - metadata:
+      name: {{ .name }}
+    spec:
+      accessModes: 
+      {{- range .accessModes }}
+      - {{ . }}
+      {{- end }}
+      {{- if .storageClassName }}
+      storageClassName: {{ .storageClassName  }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .storage }}
+  {{- end }}
+  {{- end }}
+
+  {{- with .Values.statefulset.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+{{- end }}
