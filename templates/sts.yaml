@@ -72,6 +72,22 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if or .Values.envFrom (eq .Values.wrapped_env.enabled true) }}
+          envFrom:
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+              {{- if eq .Values.wrapped_env.enabled true }}
+              {{- if eq .Values.wrapped_env.type "Secret" }}
+            - secretRef:
+                name: {{ include "base-chart.fullname" . }}-env
+              {{- end }}
+              {{- if eq .Values.wrapped_env.type "ConfigMap" }}
+            - configMapRef:
+                name: {{ include "base-chart.fullname" . }}-env
+              {{- end }}
+              {{- end }}
+          {{- end }}
           env:
             {{- if not (empty .Values.environment) }}
             {{- with .Values.environment }}

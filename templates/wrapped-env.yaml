@@ -1,0 +1,20 @@
+{{- if .Values.wrapped_env.enabled }}
+apiVersion: v1
+kind: {{ .Values.wrapped_env.type }}
+metadata:
+  name: {{ include "base-chart.fullname" . }}-env
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+data:
+{{- range $name, $value := .Values.wrapped_env.data }}
+{{- if not (empty $value) }}
+{{- if eq $.Values.wrapped_env.type "Secret" }}
+  {{ $name }}: {{ $value | b64enc | quote }}
+{{- end }}
+{{- if eq $.Values.wrapped_env.type "ConfigMap" }}
+  {{ $name }}: {{ $value | quote }} 
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+

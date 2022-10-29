@@ -50,10 +50,11 @@ JMX_OPTS: []
 
 wrapped_env:
   enabled: false
-  # type: Secret or Configmap
+  # type: Secret or ConfigMap
   type: Secret
   data: {}
     # MYSQL_PASS: "mysql-password"
+    # PSQL_PASS: "psql-password"
 
 env: {}
  # MYSQL_HOST: "mysql:3306"
@@ -76,8 +77,12 @@ environment: []
 #        key: password
 #        optional: false # same as default; "mysecret" must exist
 #                        # and include a key named "password"
+
+envFrom: []
 #  - secretRef:
 #      name: mysecret
+#  - configMapRef:
+#      name: special-config
 
 terminationGracePeriodSeconds: 30
 
@@ -179,7 +184,7 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-initContainers:
+initContainers: []
 sidecars: []
 
 autoscaling:
