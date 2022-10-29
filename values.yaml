@@ -48,10 +48,12 @@ JMX_OPTS: []
 #   - "-DParam1"
 #   - "-DParam2"
 
-wrap_env:
+wrapped_env:
   enabled: false
-  # type: secret or configmap
-  type: secret
+  # type: Secret or Configmap
+  type: Secret
+  data: {}
+    # MYSQL_PASS: "mysql-password"
 
 env: {}
  # MYSQL_HOST: "mysql:3306"
