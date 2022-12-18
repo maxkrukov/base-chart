@@ -185,7 +185,12 @@ resources: {}
   #   memory: 128Mi
 
 initContainers: []
+#initContainers: |-
+#  - name: init01
+
 sidecars: []
+#sidecars: |-
+#  - name: sidecar01
 
 autoscaling:
   enabled: false

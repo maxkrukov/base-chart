@@ -146,9 +146,11 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+
       {{- if .Values.sidecars  }}
-      {{- toYaml .Values.sidecars | nindent 8 }}
-      {{- end }}   
+      {{- tpl .Values.sidecars . | nindent 8 }}
+      {{- end }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

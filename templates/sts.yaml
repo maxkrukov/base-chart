@@ -174,7 +174,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- if .Values.sidecars  }}
-      {{- toYaml .Values.sidecars | nindent 8 }}
+      {{- tpl .Values.sidecars . | nindent 8 }}
       {{- end }}   
       {{- with .Values.nodeSelector }}
       nodeSelector:
