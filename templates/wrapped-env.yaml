@@ -9,10 +9,10 @@ data:
 {{- range $name, $value := .Values.wrapped_env.data }}
 {{- if not (empty $value) }}
 {{- if eq $.Values.wrapped_env.type "Secret" }}
-  {{ $name }}: {{ $value | b64enc | quote }}
+  {{ $name }}: {{ $value | toString | b64enc | quote }}
 {{- end }}
 {{- if eq $.Values.wrapped_env.type "ConfigMap" }}
-  {{ $name }}: {{ $value | quote }} 
+  {{ $name }}: {{ $value | toString | quote }}
 {{- end }}
 {{- end }}
 {{- end }}
