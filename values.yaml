@@ -100,15 +100,15 @@ startupProbe: {}
 #  failureThreshold: 30
 #  periodSeconds: 10
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
+livenessProbe: {}
+#  httpGet:
+#    path: /
+#    port: http
 
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+readinessProbe: {}
+#  httpGet:
+#    path: /
+#    port: http
 
 serviceAccount:
   # Specifies whether a service account should be created
