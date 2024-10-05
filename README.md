@@ -1,7 +1,3 @@
-Based on the analysis of the `values.yaml` file and templates, here's an updated **README.md** that includes the missing elements and better details:
-
----
-
 # base-chart
 
 Helm chart for deploying a stateless application on Kubernetes, with support for both **Deployments** and **StatefulSets**.
