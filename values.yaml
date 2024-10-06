@@ -31,6 +31,7 @@ statefulset:
 image:
   repository: nginx  # Default container image to use. Example: Use a custom application image.
   pullPolicy: IfNotPresent  # Example: Set to Always to always pull the latest image.
+  # If tag is not declared then it is Chart.appVersion
   tag: "latest"  # Example: Set to a specific version like "1.19.6" for consistency across environments.
 
 imagePullSecrets: []  # Example: Provide secrets for pulling private images from a registry.

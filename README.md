@@ -216,8 +216,8 @@ You can define custom init containers and sidecars for the application:
 
 | Parameter                          | Description                                                        | Default                |
 |-------------------------------------|--------------------------------------------------------------------|------------------------|
-| `initContainers`                    | List of init containers to run before the main container            | `[]`                   |
-| `sidecars`                          | List of sidecars to run alongside the main container                | `[]`                   |
+| `initContainers`                    | Template of init containers to run before the main container            | `""`                   |
+| `sidecars`                          | Template of sidecars to run alongside the main container                | `""`                   |
 
 ## Uninstalling the Chart
 
