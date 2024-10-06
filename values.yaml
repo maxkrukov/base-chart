@@ -2,65 +2,69 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+replicaCount: 1  # Number of replicas for the deployment. Example: Set to 3 for a highly available service.
 
-recreatePods: false
+recreatePods: false  # Should pods be recreated when the deployment is updated? Example: Set to true for changes requiring a full restart of all pods.
 
 statefulset:
-  enabled: false
+  enabled: false  # Set to true to use a StatefulSet instead of Deployment.
   # podManagementPolicy could be:
-  # Parallel or OrderedReady
-  podManagementPolicy: Parallel
+  # Parallel: Pods are created and deleted in parallel (fast).
+  # OrderedReady: Pods are created and deleted in order.
+  podManagementPolicy: Parallel  # Example: Use OrderedReady for strict ordering of pod startups.
   updateStrategy:
     # The spec.updateStrategy.type field accepts either 
-    # OnDelete or RollingUpdate as values
-    type: RollingUpdate
+    # OnDelete or RollingUpdate as values.
+    type: RollingUpdate  # Example: Set to OnDelete for manual updates.
     rollingUpdate:
-      partition: 0
+      partition: 0  # Example: Set to 1 to update pods incrementally, leaving one pod out.
   volumeClaimTemplates:
-    enabled: false
+    enabled: false  # Set to true to enable persistent storage for StatefulSet.
     templates:
       - name: sts-data
         accessModes:
-          - ReadWriteOnce
-        storageClassName: ""
-        storage: 1Gi
-        mountPath: /mnt/www
+          - ReadWriteOnce  # Example: Use ReadWriteMany for shared access across pods.
+        storageClassName: ""  # Specify storage class if necessary. Example: Use "gp2" for AWS.
+        storage: 1Gi  # Example: Increase to 10Gi for applications requiring larger storage.
+        mountPath: /mnt/www  # Example: Mount data at /data for specific applications.
 
 image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  repository: nginx  # Default container image to use. Example: Use a custom application image.
+  pullPolicy: IfNotPresent  # Example: Set to Always to always pull the latest image.
+  tag: "latest"  # Example: Set to a specific version like "1.19.6" for consistency across environments.
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+imagePullSecrets: []  # Example: Provide secrets for pulling private images from a registry.
+# - name: my-private-registry-secret
 
-command: []
-args: []
+nameOverride: ""  # Example: Override the chart name for multi-environment setups like "myapp-staging".
+fullnameOverride: ""  # Example: Use a custom full name, such as "myapp-prod".
 
-JAVA_OPTS: []
-#   - "-Param1"
-#   - "-Param2"
+command: []  # Example: ["nginx", "-g", "daemon off;"] to run specific commands inside the container.
+args: []  # Example: ["-c", "/etc/nginx/nginx.conf"] to pass specific arguments.
 
-JMX_OPTS: []
-#   - "-DParam1"
-#   - "-DParam2"
+JAVA_OPTS: []  # Provide custom Java options for Java-based applications.
+# Example:
+#   - "-Xmx1024m"
+#   - "-Xms512m"
+
+JMX_OPTS: []  # Provide custom JMX options. Example:
+#   - "-Dcom.sun.management.jmxremote"
+#   - "-Dcom.sun.management.jmxremote.port=1099"
 
 wrapped_env:
-  enabled: false
-  # type: Secret or ConfigMap
-  type: Secret
+  enabled: false  # Set to true to load environment variables from a Secret or ConfigMap.
+  type: Secret  # Example: Use ConfigMap to load non-sensitive values.
   data: {}
-    # MYSQL_PASS: "mysql-password"
+    # MYSQL_PASS: "mysql-password"  # Example: Use for sensitive passwords.
     # PSQL_PASS: "psql-password"
 
-env: {}
- # MYSQL_HOST: "mysql:3306"
- # KAFKA_HOST: "kafka:9092"
+env: {}  # Define environment variables for the container.
+# Example:
+# MYSQL_HOST: "mysql:3306"
+# KAFKA_HOST: "kafka:9092"
 
-environment: []
+environment: []  # Define more advanced environment variable configurations.
+# Example:
 #  - name: MY_NODE_NAME
 #    valueFrom:
 #      fieldRef:
@@ -68,115 +72,94 @@ environment: []
 #  - name: PROPERTIES_FILE_NAME
 #    valueFrom:
 #      configMapKeyRef:
-#        name: some-cm-name
+#        name: some-configmap
 #        key: properties_file_name
-#  - name: SECRET_PASSWORD
-#    valueFrom:
-#      secretKeyRef:
-#        name: mysecret
-#        key: password
-#        optional: false # same as default; "mysecret" must exist
-#                        # and include a key named "password"
 
-envFrom: []
+envFrom: []  # Example: Load environment variables from ConfigMaps or Secrets.
 #  - secretRef:
-#      name: mysecret
+#      name: my-secret
 #  - configMapRef:
-#      name: special-config
+#      name: my-config
 
-terminationGracePeriodSeconds: 30
+terminationGracePeriodSeconds: 30  # Example: Increase to 60 seconds if your app needs more time for graceful shutdown.
 
-lifecycle: {}
-#lifecycle:
-#  preStop:
-#    httpGet:
-#    path: /shutdown
-#    port: 4000
+lifecycle: {}  # Define hooks for container lifecycle events.
+# Example preStop hook to handle graceful shutdown:
+# lifecycle:
+#   preStop:
+#     exec:
+#       command: ["/bin/sh", "-c", "sleep 30"]
 
-startupProbe: {}
-#  httpGet:
-#    path: /
-#    port: http
-#  failureThreshold: 30
-#  periodSeconds: 10
+startupProbe: {}  # Example startup probe for checking if the app is ready to start.
+# startupProbe:
+#   httpGet:
+#     path: /healthz
+#     port: 8080
+#   failureThreshold: 10
+#   periodSeconds: 5
 
-livenessProbe: {}
-#  httpGet:
-#    path: /
-#    port: http
+livenessProbe: {}  # Example liveness probe to check if the container is healthy.
+# livenessProbe:
+#   httpGet:
+#     path: /healthz
+#     port: 8080
+#   initialDelaySeconds: 30
+#   timeoutSeconds: 5
 
-readinessProbe: {}
-#  httpGet:
-#    path: /
-#    port: http
+readinessProbe: {}  # Example readiness probe to check if the container is ready to serve traffic.
+# readinessProbe:
+#   httpGet:
+#     path: /ready
+#     port: 8080
 
 serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  create: true  # Example: Set to false if using an existing service account.
+  annotations: {}  # Example: Add annotations for IAM roles in EKS.
+  name: ""  # Example: Use a custom service account name, such as "myapp-serviceaccount".
 
-podAnnotations: {}
+podAnnotations: {}  # Example: Add annotations for monitoring or tracing.
+# prometheus.io/scrape: "true"
+# prometheus.io/port: "8080"
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext: {}  # Example: Set security context for the entire pod.
+# Example:
+# fsGroup: 2000
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext: {}  # Example: Define security context for containers.
+# Example:
+# runAsUser: 1000
+# readOnlyRootFilesystem: true
 
 service:
-  type: ClusterIP
+  type: ClusterIP  # Example: Change to LoadBalancer for external services.
   services:
   - name: http
-    targetPort: 80
+    targetPort: 80  # Example: Change to 8080 for different application ports.
     port: 80
-    protocol: TCP
-    # nodePort: 30080
-  #- name: jmx
-  #  targetPort: 19016
-  #  port: 19016
-  #  protocol: TCP
-  #  # nodePort: 30016
+    protocol: TCP  # Example: Use UDP if needed.
+    # nodePort: 31111  # Example: Specify a NodePort for direct access.
 
 ingress:
-  enabled: false
-  className: ""
+  enabled: false  # Set to true to enable ingress.
+  className: ""  # Example: Set to "nginx" for NGINX Ingress Controller.
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    # kubernetes.io/ingress.class: nginx  # Example: Use NGINX as the ingress controller.
+    # cert-manager.io/cluster-issuer: letsencrypt-prod  # Example: Enable automatic TLS certificate provisioning.
   hosts:
     - host: chart-example01.local
       paths:
       - path: "/"
         pathType: ImplementationSpecific
-      #serviceName:
-      servicePort: "9080"
-    - host: chart-example02.local
-      paths:
-      - path: "/"
-        pathType: ImplementationSpecific
-      #serviceName:
-      servicePort: "8080"
+        # serviceName: custom-service
+        servicePort: "80"
 
-  tls: []
-  #  - secretName: chart-example-tls
+  tls: []  # Example: Configure TLS for secure traffic.
+  #  - secretName: tls-secret
   #    hosts:
-  #      - chart-example.local
+  #      - chart-example01.local
 
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+resources: {}  # Define resource requests and limits for containers.
+  # Example configuration:
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -184,83 +167,102 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-initContainers: []
-#initContainers: |-
-#  - name: init01
 
-sidecars: []
-#sidecars: |-
-#  - name: sidecar01
+# initContainers and sidecars could be templates and use values params
+initContainers: ""  # Example: Define init containers for database migrations or pre-startup tasks.
+sidecars: ""  # Example: Define sidecar containers like logging or monitoring agents.
+# Example:
+# sidecars: |-
+#   - name: logging
+#     image: fluentd:latest
+#   - name: watcher
+#     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 
 autoscaling:
-  enabled: false
-  minReplicas: 10
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
+  enabled: false  # Set to true to enable autoscaling.
+  minReplicas: 1  # Example: Adjust for scaling down to a single instance.
+  maxReplicas: 10  # Example: Increase for higher availability.
+  targetCPUUtilizationPercentage: 80  # Example: Adjust CPU threshold for scaling.
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
+nodeSelector: {}  # Example: Use node labels to schedule pods on specific nodes.
+# Example:
+# nodeSelector:
+#   disktype: ssd
 
-tolerations: []
+tolerations: []  # Example: Define tolerations to schedule pods on tainted nodes.
+# Example:
+# tolerations:
+# - key: "key"
+#   operator: "Equal"
+#   value: "value"
+#   effect: "NoSchedule"
 
-affinity: {}
+affinity: {}  # Example: Define affinity rules to control pod placement.
+# Example:
+# affinity:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: kubernetes.io/e2e-az-name
+#               operator: In
+#               values:
+#                 - e2e-az1
 
-volumeMounts: []
+volumeMounts: []  # Example: Define additional volume mounts for logs or config files.
+# Example:
 #  - mountPath: /etc/timezone
-#    name: <volumeName>
-#    subPath: ..data/timezone
+#    name: volume-name
+#    subPath: timezone
 
+# Can load files from chart dir: config
 fileLoad:
-  enabled: false
-  mountPath: /app/config
+  enabled: false  # Example: Set to true to enable file loading.
+  mountPath: /app/config  # Example: Define the directory to load files into the container.
 
 servicemonitor:
-  enabled: false
-#  prometheus:
-#    namespace: monitoring
-#    labels:
-#      release: kube-prometheus-stack
-#      app: kube-prometheus-stack
-#  port: app
-#  path: actuator/prometheus
-#  interval: 10s
+  enabled: false  # Example: Set to true to integrate with Prometheus ServiceMonitor.
+  # Example configuration:
+  # prometheus:
+  #   namespace: monitoring
+  #   labels:
+  #     release: kube-prometheus-stack
+  #     app: kube-prometheus-stack
+  #   port: metrics
+  #   path: /metrics
+  #   interval: 10s
 
 prometheusrule:
-  enabled: false
-#  prometheus:
-#    namespace: monitoring
-#    labels:
-#      release: kube-prometheus-stack
-#      app: kube-prometheus-stack
-#  groups:
-#    - name: base-chart
-#      rules:
-#        - alert: test-base-chart
-#          annotations:
-#            description: Test  
-#            summary: Test for testing alert                                       
-#          expr: vector(0) == 0
-#          for: 1m
-#          labels:
-#            severity: warning
+  enabled: false  # Example: Enable Prometheus alerting rules.
+  # Example:
+  # prometheus:
+  #   namespace: monitoring
+  #   labels:
+  #     release: kube-prometheus-stack
+  #     app: kube-prometheus-stack
+  #   groups:
+  #     - name: base-chart
+  #       rules:
+  #         - alert: HighCPUUsage
+  #           expr: sum(rate(container_cpu_usage_seconds_total[1m])) > 0.5
+  #           for: 1m
+  #           labels:
+  #             severity: warning
+  #           annotations:
+  #             description: CPU usage is above threshold.
+  #             summary: High CPU usage detected.
 
+files: []  # Example: Define files to mount inside the container.
+# Example:
+# files:
+#   - mountPath: /etc/timezone
+#     data:
+#       timezone: "Europe/Kiev"
 
-volumeMounts: []
-#  - mountPath: /etc/timezone
-#    name: <volumeName>
-#    subPath: ..data/timezone
-
-#files:
-#  - mountPath: /etc/timezone
-#    data:
-#      timezone: |-
-#        Europe/Kiev
-
-#binaryFiles:
-#  - mountPath: /etc/localtime
-#    data:
-#      localtime: |-
-#        VFppZjIAAAAAAAAAAAAAAAAAAAAAAAANAAAADQAAAAAAAAB5AAAADQAAACKAAAAAqhmnZLWkGWDK
-#        zS7QzOdLEM2pF5DOokMQzs2ocBUnp9AWGNxAFwjbUBf6D8AY6g7QGdtDQBrMk9AbvKDwHKyR8B2c
-#        ..............
-
+binaryFiles: []  # Example: Define binary files to mount.
+# Example:
+# binaryFiles:
+#   - mountPath: /etc/localtime
+#     data:
+#       localtime: "binary data here... (base64 string)"
