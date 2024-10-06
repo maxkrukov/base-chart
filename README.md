@@ -1,6 +1,6 @@
 # base-chart
 
-Helm chart for deploying a stateless application on Kubernetes, with support for both **Deployments** and **StatefulSets**.
+Helm chart for deploying a stateless or stateful application on Kubernetes, with support for both **Deployments** and **StatefulSets**.
 
 ## Overview
 
