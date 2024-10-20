@@ -37,12 +37,12 @@ spec:
   {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
-    {{- $servicePort := .servicePort }}
-    {{- $serviceName := .serviceName }}
     - host: {{ .host | quote }}
       http:
         paths:
           {{- range .paths }}
+          {{- $servicePort := .servicePort }}
+          {{- $serviceName := .serviceName }}
           - path: {{ .path }}
             {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
             pathType: {{ .pathType }}
