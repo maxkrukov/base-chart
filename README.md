@@ -233,6 +233,3 @@ This command removes all the Kubernetes components associated with the release.
 
 This project is licensed under the MIT License.
 
----
-
-Let me know if you need any further updates!
