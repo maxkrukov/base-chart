@@ -61,3 +61,14 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+Return the full image name
+*/}}
+{{- define "base-chart.image" -}}
+{{- $tag := .Values.image.tag | default .Chart.AppVersion | toString -}}
+{{- if .Values.image.registry }}
+{{- printf "%s/%s:%s" .Values.image.registry .Values.image.repository $tag -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.image.repository $tag -}}
+{{- end -}}
+{{- end -}}
