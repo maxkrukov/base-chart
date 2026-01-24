@@ -1,0 +1,11 @@
+ingress:
+  enabled: true
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          servicePort: http
+    - host: api.example.com
+      paths:
+        - path: /api
+          servicePort: 8080

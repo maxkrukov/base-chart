@@ -22,6 +22,8 @@ test:
     helm template . -f ci/test-values-sts.yaml > /dev/null
     @echo "Running Observability scenario..."
     helm template . -f ci/test-values-observability.yaml > /dev/null
+    @echo "Running Ingress scenario..."
+    helm template . -f ci/test-values-ingress.yaml > /dev/null
     @echo "✅ All CI scenarios passed!"
 
 # Package the chart for distribution

@@ -40,7 +40,11 @@ spec:
               service:
                 name: {{ $serviceName | default $fullName }}
                 port:
+                  {{- if and (kindIs "string" $servicePort) (not (regexMatch "^[0-9]+$" $servicePort)) }}
+                  name: {{ $servicePort }}
+                  {{- else }}
                   number: {{ $servicePort }}
+                  {{- end }}
           {{- end }}
     {{- end }}
 {{- end }}
