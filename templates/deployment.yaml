@@ -15,6 +15,13 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/config: {{ include "base-chart.configmap" . | sha256sum }}
+        {{- if .Values.fileLoad.enabled }}
+        checksum/config-load: {{ include "base-chart.configmap-config" . | sha256sum }}
+        {{- end }}
+        {{- if .Values.wrapped_env.enabled }}
+        checksum/wrapped-env: {{ include "base-chart.wrapped-env" . | sha256sum }}
+        {{- end }}
     {{- if .Values.recreatePods }}
         rollme: {{ randAlphaNum 5 | quote }}
     {{- end }}
@@ -172,6 +179,6 @@ spec:
       {{- if .Values.fileLoad.enabled }}
         - name: files-config
           configMap:
-            name: {{ include "base-chart.fullname" . }}-config      
+            name: {{ include "base-chart.fullname" . }}-config
       {{- end }}
 {{- end }}

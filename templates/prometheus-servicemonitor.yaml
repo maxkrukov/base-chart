@@ -1,0 +1,30 @@
+{{- if .Values.servicemonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  namespace: {{ if .Values.servicemonitor.prometheus }}{{ .Values.servicemonitor.prometheus.namespace | default .Release.Namespace }}{{ else }}{{ .Release.Namespace }}{{ end }}
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+    {{- if .Values.servicemonitor.prometheus }}
+    {{- if .Values.servicemonitor.prometheus.labels }}
+    {{- toYaml .Values.servicemonitor.prometheus.labels | nindent 4 }}
+    {{- end }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "base-chart.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  endpoints:
+    - port: {{ .Values.servicemonitor.port | default "http" }}
+      path: {{ .Values.servicemonitor.path | default "/metrics" }}
+      {{- if .Values.servicemonitor.interval }}
+      interval: {{ .Values.servicemonitor.interval }}
+      {{- end }}
+      {{- if .Values.servicemonitor.scrapeTimeout }}
+      scrapeTimeout: {{ .Values.servicemonitor.scrapeTimeout }}
+      {{- end }}
+{{- end }}

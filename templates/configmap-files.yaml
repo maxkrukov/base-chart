@@ -1,3 +1,4 @@
+{{- define "base-chart.configmap" -}}
 {{- if or .Values.files .Values.binaryFiles }}
 apiVersion: v1
 kind: ConfigMap
@@ -20,4 +21,5 @@ binaryData:
 {{- end }}
 {{- end }}
 {{- end }}
-
+{{- end -}}
+{{- include "base-chart.configmap" . }}
