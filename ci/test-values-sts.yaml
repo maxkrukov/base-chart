@@ -1,0 +1,8 @@
+statefulset:
+  enabled: true
+  volumeClaimTemplates:
+    enabled: true
+    templates:
+      - name: data
+        accessModes: [ "ReadWriteOnce" ]
+        storage: 1Gi

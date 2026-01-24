@@ -1,0 +1,13 @@
+gateway:
+  enabled: true
+  create: true
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+  hostnames:
+    - example.com
+  rules:
+    - backendRefs:
+        - name: my-service
+          port: 80

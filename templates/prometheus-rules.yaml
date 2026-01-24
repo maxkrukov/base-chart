@@ -2,10 +2,15 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  labels:
-    {{- toYaml .Values.prometheusrule.prometheus.labels | nindent 4 }}
   name: {{ include "base-chart.fullname" . }}
-  namespace: {{ .Values.prometheusrule.prometheus.namespace }}
+  namespace: {{ if .Values.prometheusrule.prometheus }}{{ .Values.prometheusrule.prometheus.namespace | default .Release.Namespace }}{{ else }}{{ .Release.Namespace }}{{ end }}
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+    {{- if .Values.prometheusrule.prometheus }}
+    {{- if .Values.prometheusrule.prometheus.labels }}
+    {{- toYaml .Values.prometheusrule.prometheus.labels | nindent 4 }}
+    {{- end }}
+    {{- end }}
 spec:
   groups:
     {{- range .Values.prometheusrule.groups }}
@@ -25,4 +30,4 @@ spec:
           {{- end }}
         {{- end }}
     {{- end }}
-  {{- end }}
+{{- end }}

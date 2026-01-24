@@ -1,0 +1,34 @@
+{{- if .Values.keda.enabled -}}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "base-chart.fullname" . }}
+  labels:
+    {{- include "base-chart.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "base-chart.fullname" . }}
+    {{- if .Values.statefulset.enabled }}
+    kind: StatefulSet
+    {{- else }}
+    kind: Deployment
+    {{- end }}
+  {{- if .Values.keda.minReplicaCount }}
+  minReplicaCount: {{ .Values.keda.minReplicaCount }}
+  {{- end }}
+  {{- if .Values.keda.maxReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
+  {{- end }}
+  {{- if .Values.keda.pollingInterval }}
+  pollingInterval: {{ .Values.keda.pollingInterval }}
+  {{- end }}
+  {{- if .Values.keda.cooldownPeriod }}
+  cooldownPeriod: {{ .Values.keda.cooldownPeriod }}
+  {{- end }}
+  {{- if .Values.keda.advanced }}
+  advanced:
+    {{- toYaml .Values.keda.advanced | nindent 4 }}
+  {{- end }}
+  triggers:
+  {{- toYaml .Values.keda.triggers | nindent 4 }}
+{{- end -}}

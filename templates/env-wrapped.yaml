@@ -1,3 +1,4 @@
+{{- define "base-chart.wrapped-env" -}}
 {{- if .Values.wrapped_env.enabled }}
 apiVersion: v1
 kind: {{ .Values.wrapped_env.type }}
@@ -17,4 +18,5 @@ data:
 {{- end }}
 {{- end }}
 {{- end }}
-
+{{- end -}}
+{{- include "base-chart.wrapped-env" . }}

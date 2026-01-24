@@ -1,0 +1,9 @@
+servicemonitor:
+  enabled: true
+prometheusrule:
+  enabled: true
+  groups:
+    - name: test
+      rules:
+        - alert: Test
+          expr: up == 0
