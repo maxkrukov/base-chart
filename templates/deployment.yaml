@@ -47,7 +47,7 @@ spec:
         - name: {{ include "base-chart.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: {{ include "base-chart.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
             {{- with .Values.command }}
           command:

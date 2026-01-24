@@ -1,36 +1,47 @@
 # Default values for base-chart.
 # This file declares variables to be passed into your templates.
 
-# -- Global overrides
+# @section Global
+
+# -- Override the chart name
 nameOverride: ""
+# -- Override the full chart name
 fullnameOverride: ""
-
-# -- Replica configuration (ignored if autoscaling is enabled)
+# -- Number of replicas (ignored if autoscaling is enabled)
 replicaCount: 1
-
-# -- Pod restart policy (Force pods to be recreated by setting a random annotation)
+# -- Force pods to be recreated by setting a random annotation
 recreatePods: false
 
-# -- Image configuration
+# @section Image
+
 image:
+  # -- Image repository
   repository: nginx
+  # -- Image pull policy
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  # -- Image tag (defaults to chart appVersion)
   tag: "latest"
 
+# -- Secrets for pulling images from a private registry
 imagePullSecrets: []
 # - name: my-registry-secret
 
-# -- Workload Type Configuration (Deployment vs StatefulSet)
+# @section Workload
+
 statefulset:
+  # -- Enable StatefulSet instead of Deployment
   enabled: false
+  # -- Pod management policy
   podManagementPolicy: Parallel
+  # -- Update strategy
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
       partition: 0
   volumeClaimTemplates:
+    # -- Enable volume claim templates for StatefulSet
     enabled: false
+    # -- List of volume claim templates
     templates:
       - name: sts-data
         accessModes: [ "ReadWriteOnce" ]
@@ -38,31 +49,42 @@ statefulset:
         storage: 1Gi
         mountPath: /mnt/data
 
-# -- Pod Configuration
+# @section Pod
+
 serviceAccount:
+  # -- Create a service account
   create: true
+  # -- Annotations for the service account
   annotations: {}
+  # -- The name of the service account to use
   name: ""
 
+# -- Pod annotations
 podAnnotations: {}
 # prometheus.io/scrape: "true"
 # prometheus.io/port: "80"
 
+# -- Pod security context
 podSecurityContext: {}
   # fsGroup: 2000
 
+# -- Container security context
 securityContext: {}
   # runAsUser: 1000
   # readOnlyRootFilesystem: true
 
+# -- Pod termination grace period in seconds
 terminationGracePeriodSeconds: 30
 
-# -- Container Lifecycle & Probes
+# @section Lifecycle & Probes
+
+# -- Container lifecycle hooks
 lifecycle: {}
   # preStop:
   #   exec:
   #     command: ["/bin/sh", "-c", "sleep 30"]
 
+# -- Startup probe configuration
 startupProbe: {}
 #  httpGet:
 #    path: /healthz
@@ -70,112 +92,116 @@ startupProbe: {}
 #  failureThreshold: 30
 #  periodSeconds: 10
 
+# -- Liveness probe configuration
 livenessProbe: {}
 #  httpGet:
 #    path: /healthz
 #    port: http
 
+# -- Readiness probe configuration
 readinessProbe: {}
 #  httpGet:
 #    path: /ready
 #    port: http
 
-# -- Container Command & Arguments
+# @section Command & Args
+
+# -- Container command
 command: []
 # - "nginx"
 # - "-g"
 # - "daemon off;"
+
+# -- Container arguments
 args: []
 
-# -- Environment Variables
+# @section Environment
+
+# -- Environment variables (key-value)
 env: {}
 #  MY_VAR: "my-value"
 #  DATABASE_URL: "postgres://user:pass@host:5432/db"
 
+# -- Advanced environment variables (valueFrom)
 environment: []
 #  - name: MY_NODE_NAME
 #    valueFrom:
 #      fieldRef:
 #        fieldPath: spec.nodeName
-#  - name: SECRET_PASSWORD
-#    valueFrom:
-#      secretKeyRef:
-#        name: mysecret
-#        key: password
 
+# -- Load environment variables from Secrets or ConfigMaps
 envFrom: []
 #  - configMapRef:
 #      name: app-config
-#  - secretRef:
-#      name: app-secret
 
+# -- Helper for wrapping sensitive values in a Secret/ConfigMap
 wrapped_env:
   enabled: false
   type: Secret # or ConfigMap
   data: {}
   # DB_PASSWORD: "plain-text-will-be-wrapped-in-secret"
 
-# -- Java/JMX Options (Specific helpers)
+# @section Java/JMX
+
+# -- Java options (JAVA_OPTS)
 JAVA_OPTS: []
 # - "-Xmx1024m"
-# - "-Xms512m"
+
+# -- JMX options (JMX_OPTS)
 JMX_OPTS: []
 # - "-Dcom.sun.management.jmxremote"
 
-# -- Files & Storage
+# @section Files & Storage
+
+# -- Mount files from values
 files: []
 #  - mountPath: /etc/config/app.yaml
 #    data:
 #      app.yaml: |
 #        server:
 #          port: 8080
-binaryFiles: []
-#  - mountPath: /etc/config/logo.png
-#    data:
-#      logo.png: "base64-encoded-data-here"
 
+# -- Mount binary files from values (base64)
+binaryFiles: []
+
+# -- Load files from 'config/' directory of the chart
 fileLoad:
   enabled: false
-  mountPath: /app/config # Path where files from chart 'config/' directory will be mounted
+  mountPath: /app/config
 
+# -- Additional volume mounts
 volumeMounts: []
 #  - name: data
 #    mountPath: /data
 
-# -- Scheduling & Affinity
+# @section Scheduling
+
+# -- Node selector
 nodeSelector: {}
 #  disktype: ssd
 
+# -- Tolerations
 tolerations: []
 #  - key: "example-key"
 #    operator: "Exists"
-#    effect: "NoSchedule"
 
+# -- Affinity
 affinity: {}
-#  nodeAffinity:
-#    requiredDuringSchedulingIgnoredDuringExecution:
-#      nodeSelectorTerms:
-#      - matchExpressions:
-#        - key: kubernetes.io/e2e-az-name
-#          operator: In
-#          values:
-#          - e2e-az1
 
-# -- Init Containers & Sidecars
+# @section Sidecars
+
+# -- Init containers (template string)
 initContainers: ""
-# |-
-# - name: init-db
-#   image: busybox
-#   command: ['sh', '-c', 'echo "init..."']
 
+# -- Sidecar containers (template string)
 sidecars: ""
-# |-
-# - name: log-exporter
-#   image: fluentd
 
-# -- Networking
+# @section Networking
+
 service:
+  # -- Service type
   type: ClusterIP
+  # -- List of service ports
   services:
     - name: http
       port: 80
@@ -183,62 +209,65 @@ service:
       protocol: TCP
 
 ingress:
+  # -- Enable Ingress
   enabled: false
+  # -- Ingress class name
   className: ""
+  # -- Ingress annotations
   annotations: {}
-  #  cert-manager.io/cluster-issuer: letsencrypt-prod
+  # -- Ingress hosts
   hosts:
     - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
           servicePort: 80
+  # -- Ingress TLS configuration
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 gateway:
+  # -- Enable Gateway API support
   enabled: false
+  # -- Create a Gateway resource
   create: false
+  # -- GatewayClass name
   className: cilium
+  # -- Parent references for HTTPRoute
   parentRefs: []
-  #  - name: my-gateway
-  #    namespace: gateway-system
+  # -- Hostnames for HTTPRoute
   hostnames: []
-  #  - "app.example.com"
+  # -- Rules for HTTPRoute
   rules: []
-  #  - matches:
-  #      - path: { type: PathPrefix, value: /api }
-  #    backendRefs:
-  #      - name: my-service
-  #        port: 80
 
-# -- Observability
+# @section Observability
+
 servicemonitor:
+  # -- Enable Prometheus ServiceMonitor
   enabled: false
+  # -- Service port to scrape
   port: http
+  # -- Metrics path
   path: /metrics
+  # -- Scrape interval
   interval: 10s
+  # -- Scrape timeout
   scrapeTimeout: 10s
   # prometheus:
   #   namespace: monitoring
-  #   labels:
-  #     release: kube-prometheus-stack
+  #   labels: {}
 
 prometheusrule:
+  # -- Enable PrometheusRule
   enabled: false
+  # -- Alerting rules groups
   groups: []
-  #  - name: app-alerts
-  #    rules:
-  #      - alert: HighCPU
-  #        expr: sum(rate(container_cpu_usage_seconds_total[1m])) > 0.8
   # prometheus:
   #   namespace: monitoring
-  #   labels:
-  #     release: kube-prometheus-stack
+  #   labels: {}
 
-# -- Scaling & Resources
+# @section Scaling & Resources
+
+# -- Container resource requests and limits
 resources: {}
 #  limits:
 #    cpu: 100m
@@ -248,22 +277,18 @@ resources: {}
 #    memory: 128Mi
 
 autoscaling:
+  # -- Enable Horizontal Pod Autoscaler
   enabled: false
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 keda:
+  # -- Enable KEDA Autoscaling
   enabled: false
   minReplicaCount: 1
   maxReplicaCount: 10
   pollingInterval: 30
   cooldownPeriod: 300
+  # -- KEDA triggers
   triggers: []
-#    - type: prometheus
-#      metadata:
-#        serverAddress: http://prometheus-k8s.monitoring.svc.cluster.local:9090
-#        metricName: http_requests_total
-#        threshold: '100'
-#        query: sum(rate(http_requests_total{app="my-app"}[2m]))
