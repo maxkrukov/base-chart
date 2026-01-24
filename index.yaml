@@ -3,7 +3,7 @@ entries:
   base-chart:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-01-24T16:57:12.694450652+01:00"
+    created: "2026-01-24T17:41:23.106939961+01:00"
     description: A Helm base chart for Kubernetes
     digest: 783b4754dc3c18a885b26b88b513ada64475fa070e7dd5bada08b51de4a4cb60
     name: base-chart
@@ -13,7 +13,7 @@ entries:
     version: 1.1.0
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-01-24T16:57:12.693532179+01:00"
+    created: "2026-01-24T17:41:23.105825535+01:00"
     description: A Helm base chart for Kubernetes
     digest: 53a30add10f5cbb5e3703c08d6fba17cbd750a938d9b578b21bcd998e5877584
     name: base-chart
@@ -23,7 +23,7 @@ entries:
     version: 1.0.0
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-01-24T16:57:12.692614604+01:00"
+    created: "2026-01-24T17:41:23.104630153+01:00"
     description: A Helm chart for Kubernetes
     digest: 55d803348c56ccb0aa03c6aa981522b2a2ff4714140a699bba8e2de80515c14b
     name: base-chart
@@ -31,4 +31,4 @@ entries:
     urls:
     - base-chart-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-24T16:57:12.691628378+01:00"
+generated: "2026-01-24T17:41:23.1034553+01:00"
